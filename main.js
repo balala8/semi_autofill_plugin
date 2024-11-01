@@ -74,28 +74,87 @@ document.body.appendChild(alertBox);
 
 let uponElement = null;
 
-// 在页面加载后3秒执行
-setTimeout(function() {
-    // const inputElements = document.querySelectorAll('input[type="text"], textarea');
-    // inputElements.forEach(input => {
-    //     input.addEventListener('click', popupWindowClick);
-    // });
+// // 在页面加载后3秒执行
+// setTimeout(function() {
+//     // const inputElements = document.querySelectorAll('input[type="text"], textarea');
+//     // inputElements.forEach(input => {
+//     //     input.addEventListener('click', popupWindowClick);
+//     // });
 
+//     document.addEventListener('click', function(event) {
+//         if (event.target.tagName === 'INPUT' && event.target.type==='text' || event.target.tagName === 'TEXTAREA') {
+//             popupWindowClick(event);
+//         }else if(popupWindow.style.display =="flex"){
+//             popupWindow.style.display = 'none';
+//         }
+
+//     });
+//     // 监听页面滚动事件
+//     window.addEventListener('scroll', function() {
+//         if(popupWindow.style.display =="flex"){
+//             popupWindow.style.display = 'none';
+//         }
+//     });
+// }, 3000);
+
+
+// 提醒用户按下左右键以启动
+// alert('请同时按下左右键以启动功能。');
+
+let leftKeyPressed = false;
+let rightKeyPressed = false;
+
+
+document.addEventListener("mousedown", function(event) {
+    // 检查是否按下左键
+    if (event.button === 0) {
+        leftKeyPressed = true;
+    }
+
+    // 检查是否按下右键
+    if (event.button === 2) {
+        rightKeyPressed = true;
+
+        // 判断是否同时按下左右键
+        if (leftKeyPressed && rightKeyPressed) { 
+            activateFeature();      // 启动功能
+        }
+    }
+});
+
+
+document.addEventListener('mouseup', function(event) {
+    if (event.button === 0) {
+        leftKeyPressed = false;
+    }
+    if (event.button === 2) {
+        rightKeyPressed = false;    
+    }
+});
+
+
+function activateFeature() {
+    showText("填写插件已启用",displayDuration=1500)
     document.addEventListener('click', function(event) {
-        if (event.target.tagName === 'INPUT' && event.target.type==='text' || event.target.tagName === 'TEXTAREA') {
+        if ((event.target.tagName === 'INPUT' && event.target.type === 'text') || event.target.tagName === 'TEXTAREA') {
             popupWindowClick(event);
-        }else if(popupWindow.style.display =="flex"){
+        } else if (popupWindow.style.display === 'flex') {
             popupWindow.style.display = 'none';
         }
-
     });
+
     // 监听页面滚动事件
     window.addEventListener('scroll', function() {
-        if(popupWindow.style.display =="flex"){
+        if (popupWindow.style.display === 'flex') {
             popupWindow.style.display = 'none';
         }
     });
-}, 3000);
+
+    // 重置键状态
+    leftKeyPressed = false;
+    rightKeyPressed = false;
+}
+
 
 
 // 悬浮窗口添加点击事件监听器
@@ -196,9 +255,13 @@ function getNearLabelElement(element) {
         if (htmlText == null || htmlText == undefined || htmlText == "") {
             continue;
         }
+        
         console.log("htmlText:", htmlText);
+        
         let res = keyword2index(htmlText);
+        
         console.log("res:", res);
+
         if (res != "-1") {
             return res;
         }
@@ -223,15 +286,16 @@ function calculateJaccardSimilarity(str1, str2) {
     return intersection.size / union.size;
 }
 
-function showText(text) {
-    alertBox.textContent = text;
-    alertBox.style.display = "flex";
-    alertBox.style.opacity = "1";
-    setTimeout(function () {
-        alertBox.style.opacity = "0";
-        setTimeout(function () {
-            alertBox.style.display = "none";
-        }, 500);
-    }, 500);
-}
+function showText(text, displayDuration= 500) {
+    alertBox.textContent = text;          // 设置 alertBox 的文本内容为传入的 text 参数
+    alertBox.style.display = "flex";      // 显示 alertBox 元素
+    alertBox.style.opacity = "1";         // 设置 alertBox 的不透明度为 1，使其完全可见
 
+    setTimeout(function () {              // 设置定时器，在 displayDuration 毫秒后开始淡出
+        alertBox.style.opacity = "0";     // 将 alertBox 的不透明度设置为 0，使其逐渐变得透明
+
+        setTimeout(function () {          // 设置另一个定时器，等待 500 毫秒后完全隐藏 alertBox
+            alertBox.style.display = "none";  // 将 alertBox 的 display 设置为 "none"，从页面上移除
+        }, 500);                          // 500 毫秒是淡出动画的持续时间
+    }, displayDuration);
+}
